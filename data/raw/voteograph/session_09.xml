@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session log="voteograph">
-  <event time="1791971100" type="touch" target="ballot_intro"/>
-  <event time="1791971112" type="touch" target="candidate_card_1"/>
-  <event time="1791971125" type="touch" target="review_ballot_nav"/>
-  <event time="1791971140" type="touch" target="cast_vote_button"/>
-</session>
