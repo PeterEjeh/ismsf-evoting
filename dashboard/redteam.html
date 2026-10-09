@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ISMSF — Red-Team Threat Simulation Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --red: #ef4444;
+      --red-hover: #dc2626;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: #020617;
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-badge {
+      background: #7f1d1d;
+      color: #fca5a5;
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-family: var(--mono);
+    }
+
+    .brand-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .header-links {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .nav-btn {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 0.4rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      transition: all 0.15s;
+    }
+
+    .nav-btn:hover {
+      color: var(--text);
+      border-color: #64748b;
+      background: #1e293b;
+    }
+
+    main {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .hero-banner {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-left: 4px solid var(--red);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .hero-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #f8fafc;
+      margin-bottom: 0.35rem;
+    }
+
+    .hero-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .attack-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: border-color 0.2s;
+    }
+
+    .attack-card:hover {
+      border-color: #64748b;
+    }
+
+    .attack-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+    }
+
+    .attack-name {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #f1f5f9;
+    }
+
+    .attack-pill {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      background: #334155;
+      color: #cbd5e1;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .attack-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      margin-bottom: 1rem;
+    }
+
+    .attack-signals {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 0.75rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.78rem;
+      font-family: var(--mono);
+      color: #94a3b8;
+    }
+
+    .attack-signals strong {
+      color: #f8fafc;
+    }
+
+    .btn-fire {
+      background: #dc2626;
+      color: white;
+      border: 1px solid #b91c1c;
+      padding: 0.75rem 1.25rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.15s;
+    }
+
+    .btn-fire:hover {
+      background: #b91c1c;
+    }
+
+    .btn-fire:active {
+      transform: scale(0.99);
+    }
+
+    /* Output Console */
+    .terminal-panel {
+      background: #020617;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+    }
+
+    .terminal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 0.75rem;
+      margin-bottom: 0.75rem;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    .terminal-body {
+      min-height: 120px;
+      max-height: 250px;
+      overflow-y: auto;
+      color: #38bdf8;
+      line-height: 1.5;
+    }
+
+    .log-line {
+      margin-bottom: 0.35rem;
+    }
+
+    .log-flagged {
+      color: #f87171;
+      font-weight: 600;
+    }
+
+    .log-normal {
+      color: #4ade80;
+    }
+
+    /* Manual cURL box */
+    .manual-box {
+      margin-top: 2rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+
+    .manual-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    pre {
+      background: #020617;
+      padding: 0.85rem;
+      border-radius: 6px;
+      border: 1px solid #1e293b;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: #cbd5e1;
+      overflow-x: auto;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <span class="brand-badge">RED-TEAM</span>
+      <div class="brand-title">Threat Simulation & Anomaly Injection Console</div>
+    </div>
+    <div class="header-links">
+      <a href="/dashboard" class="nav-btn">← Back to SOC Dashboard</a>
+      <a href="/voter" target="_blank" class="nav-btn">Open Voter Portal ↗</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="hero-banner">
+      <div class="hero-title">Adversarial Telemetry Testing Framework</div>
+      <div class="hero-desc">
+        This sub-page serves as the red-team injection harness. Use the controls below to trigger live out-of-distribution attacks against the running ATBU e-voting backend and verify that the unsupervised Isolation Forest and Local Outlier Factor (LOF) models flag them in real time on the main Security Operations Center dashboard.
+      </div>
+    </div>
+
+    <!-- 4 Injection Cards -->
+    <div class="grid-cards">
+      <!-- 1. Credential Stuffing -->
+      <div class="attack-card">
+        <div>
+          <div class="attack-header">
+            <div class="attack-name">1. Credential Stuffing Attack</div>
+            <span class="attack-pill">AUTH_FAIL VELOCITY</span>
+          </div>
+          <div class="attack-desc">
+            Fires 25 rapid authentication failures against a target student account with sub-second spacing. Simulates an adversary attempting brute-force PIN guessing.
+          </div>
+          <div class="attack-signals">
+            <strong>Expected Signal:</strong> Failed login ratio spikes to 1.0 (100%). Isolation Forest score drops below threshold boundary (0.0).
+          </div>
+        </div>
+        <button class="btn-fire" onclick="fireAttack('credential_stuffing', 'Credential Stuffing')">
+          ⚡ Inject Credential Stuffing (25 Failed PINs)
+        </button>
+      </div>
+
+      <!-- 2. Bot Vote Stuffing -->
+      <div class="attack-card">
+        <div>
+          <div class="attack-header">
+            <div class="attack-name">2. Bot-Driven Vote Stuffing</div>
+            <span class="attack-pill">DELTA-T COLLAPSE</span>
+          </div>
+          <div class="attack-desc">
+            Submits 30 automated ballot events within 1.5 seconds. Replaces natural human decision pacing (15s–40s) with machine-speed script submissions.
+          </div>
+          <div class="attack-signals">
+            <strong>Expected Signal:</strong> Inter-arrival variance collapses near zero (&lt; 0.001s). Flagged as non-human density anomaly.
+          </div>
+        </div>
+        <button class="btn-fire" onclick="fireAttack('vote_stuffing', 'Bot Vote Stuffing')">
+          ⚡ Inject Bot Vote Stuffing (30 Machine Votes)
+        </button>
+      </div>
+
+      <!-- 3. Off-Hours Traffic Surge -->
+      <div class="attack-card">
+        <div>
+          <div class="attack-header">
+            <div class="attack-name">3. Traffic Burst / Rate Surge</div>
+            <span class="attack-pill">VOLUME ANOMALY</span>
+          </div>
+          <div class="attack-desc">
+            Dispatches a burst of 40 events in rapid succession, far exceeding typical voting window arrival frequencies and normal rate limits.
+          </div>
+          <div class="attack-signals">
+            <strong>Expected Signal:</strong> Event count surges out-of-distribution. Window density evaluated as statistical outlier.
+          </div>
+        </div>
+        <button class="btn-fire" onclick="fireAttack('off_hours_surge', 'Traffic Surge')">
+          ⚡ Inject Traffic Surge (40 Events Burst)
+        </button>
+      </div>
+
+      <!-- 4. Endpoint Probing -->
+      <div class="attack-card">
+        <div>
+          <div class="attack-header">
+            <div class="attack-name">4. Endpoint Probing / Scanning</div>
+            <span class="attack-pill">UNAUTHORIZED PATHS</span>
+          </div>
+          <div class="attack-desc">
+            Fires 20 rapid scans targeting privileged administrative or non-existent backend functions. Simulates vulnerability scanners and reconnaissance bots.
+          </div>
+          <div class="attack-signals">
+            <strong>Expected Signal:</strong> Administrative access frequency spikes; access behavior profile departs from normal voter flows.
+          </div>
+        </div>
+        <button class="btn-fire" onclick="fireAttack('endpoint_probing', 'Endpoint Probing')">
+          ⚡ Inject Endpoint Probing (20 Admin Scans)
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Execution Console -->
+    <div class="terminal-panel">
+      <div class="terminal-header">
+        <span>INJECTION TELEMETRY LOG</span>
+        <span id="termStatus">READY — AWAITING TEST</span>
+      </div>
+      <div id="termOutput" class="terminal-body">
+        <div class="log-line">> Red-Team Console initialized. Ready to execute live telemetry injection tests.</div>
+      </div>
+    </div>
+
+    <!-- Manual Testing Snippets -->
+    <div class="manual-box">
+      <div class="manual-title">Manual External Attack Injection (PowerShell / cURL)</div>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+        You can also inject anomalies directly from another computer or terminal window using these commands:
+      </p>
+
+      <div style="font-size: 0.78rem; font-weight: 600; color: #f1f5f9; margin-top: 0.75rem;">PowerShell Automated Vote Loop:</div>
+      <pre>1..25 | ForEach-Object { Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/events" -Method Post -Body '{"session_id":"bot_script","event_type":"vote","source":"trial"}' -ContentType "application/json" }</pre>
+
+      <div style="font-size: 0.78rem; font-weight: 600; color: #f1f5f9; margin-top: 0.75rem;">PowerShell Rapid Failed Login Loop:</div>
+      <pre>1..20 | ForEach-Object { Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/voters/login" -Method Post -Body '{"reg_no":"21/48920U/1","pin":"0000"}' -ContentType "application/json" -SkipHttpErrorCheck }</pre>
+    </div>
+  </main>
+
+  <script>
+    async function fireAttack(attackType, attackLabel) {
+      const term = document.getElementById('termOutput');
+      const status = document.getElementById('termStatus');
+
+      status.textContent = `EXECUTING: ${attackLabel.toUpperCase()}...`;
+      status.style.color = '#ef4444';
+
+      const line = document.createElement('div');
+      line.className = 'log-line';
+      line.textContent = `[${new Date().toLocaleTimeString()}] Dispatching ${attackLabel} attack payload to /api/test/inject-anomaly...`;
+      term.appendChild(line);
+
+      try {
+        const res = await fetch('/api/test/inject-anomaly', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: attackType })
+        });
+
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+
+        const resLine = document.createElement('div');
+        resLine.className = 'log-line ' + (data.window_score.flagged ? 'log-flagged' : 'log-normal');
+        resLine.innerHTML = `[${new Date().toLocaleTimeString()}] ↳ Response: ${data.events_injected} events injected. Flagged=${data.window_score.flagged} | Risk Level=${data.window_score.risk_level} | ISO Score=${data.window_score.iso_score.toFixed(4)} | Failed Ratio=${(data.window_score.failed_login_ratio * 100).toFixed(0)}%`;
+        term.appendChild(resLine);
+
+        status.textContent = `COMPLETED: FLAGGED=${data.window_score.flagged.toString().toUpperCase()} (${data.window_score.risk_level.toUpperCase()} RISK)`;
+        status.style.color = data.window_score.flagged ? '#ef4444' : '#10b981';
+
+        term.scrollTop = term.scrollHeight;
+      } catch (err) {
+        const errLine = document.createElement('div');
+        errLine.className = 'log-line log-flagged';
+        errLine.textContent = `[${new Date().toLocaleTimeString()}] Injection error: ${err.message}`;
+        term.appendChild(errLine);
+        status.textContent = 'ERROR ENCOUNTERED';
+      }
+    }
+  </script>
+</body>
+</html>

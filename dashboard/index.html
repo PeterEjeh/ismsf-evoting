@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ISMSF — Security Operations Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --border-dark: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent: #0f172a;
+      --accent-hover: #1e293b;
+      --risk-low: #059669;
+      --risk-med: #d97706;
+      --risk-high: #dc2626;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: #fafafa;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation */
+    header {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0.85rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-logo {
+      width: 26px;
+      height: 26px;
+      background: var(--accent);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .brand-title {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-tag {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      border-left: 1px solid var(--border);
+      padding-left: 0.75rem;
+      margin-left: 0.25rem;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .live-pulse {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--risk-low);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .btn-outline {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--text-main);
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--border-dark);
+      background: #f8fafc;
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 1280px;
+      width: 100%;
+      margin: 1.5rem auto;
+      padding: 0 2rem;
+    }
+
+    /* KPI Summary Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .kpi-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.25rem;
+    }
+
+    .kpi-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .kpi-value {
+      font-size: 1.6rem;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+    }
+
+    .kpi-meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+      font-family: var(--mono);
+    }
+
+    /* Risk indicators */
+    .risk-indicator {
+      font-weight: 600;
+    }
+    .risk-indicator.low { color: var(--risk-low); }
+    .risk-indicator.medium { color: var(--risk-med); }
+    .risk-indicator.high { color: var(--risk-high); }
+
+    /* Layout Grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .panel {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .panel-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .panel-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Chart Canvas */
+    .chart-container {
+      width: 100%;
+      height: 220px;
+      position: relative;
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    /* Alert Feed Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    th {
+      text-align: left;
+      padding: 0.6rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      font-weight: 500;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: #fafbfc;
+    }
+
+    .mono-cell {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+    }
+
+    .btn-action {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      color: var(--text-main);
+      transition: all 0.15s;
+    }
+
+    .btn-action:hover {
+      border-color: var(--accent);
+      background: #f8fafc;
+    }
+
+    .btn-action.investigated {
+      color: var(--text-muted);
+      background: #f1f5f9;
+      border-color: transparent;
+      cursor: default;
+    }
+
+    /* Modal for investigation */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .modal-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      max-width: 480px;
+      width: 90%;
+      padding: 1.75rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .modal-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.75rem;
+      font-size: 0.85rem;
+      outline: none;
+      resize: vertical;
+      margin-bottom: 1rem;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
+    .empty-state {
+      padding: 2.5rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="brand-logo">S</div>
+      <div class="brand-title">ISMSF Security Operations</div>
+      <span class="brand-tag">Electronic Voting Anomaly Detection</span>
+    </div>
+
+    <div class="nav-actions">
+      <div class="live-pulse">
+        <div class="pulse-dot"></div>
+        <span>Live Stream Active</span>
+      </div>
+      <a href="/voter" target="_blank" class="btn-outline">Open ATBU Voter Portal ↗</a>
+      <a href="/redteam" target="_blank" class="btn-outline" style="border-color: #fca5a5; color: #991b1b;">Red-Team Console ↗</a>
+      <button id="resetTelemetryBtn" class="btn-outline" style="color: var(--danger); border-color: #fecaca;">Clear Alerts / Reset</button>
+      <button id="refreshBtn" class="btn-outline">↻ Refresh</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Election Window Schedule & Test Mode Control -->
+    <div class="panel" style="margin-bottom: 1.25rem; padding: 1.15rem 1.5rem; background: #ffffff; border-left: 4px solid var(--accent);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <div style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.25rem;">
+            ATBU SUG General Election 2026 — 4-Hour Voting Window
+          </div>
+          <div style="font-size: 1rem; font-weight: 600;">
+            Friday, 9th October 2026, 6:00 PM – 10:00 PM (WAT)
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+            Current Status: <span id="electionStatusLabel" style="font-weight: 600; color: #059669;">SYNCING...</span>
+            &nbsp;•&nbsp; Timer: <span id="electionWindowTimer" class="mono-cell" style="font-weight: 600;">--:--:--</span>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <button id="toggleTestModeBtn" class="btn-outline" style="font-size: 0.8rem; font-weight: 600;">
+            🔓 Toggle Early Test Mode
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Current Risk Status</div>
+        <div id="kpiRisk" class="kpi-value risk-indicator low">Low</div>
+        <div id="kpiFlagged" class="kpi-meta">Flagged: False</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Isolation Forest Score</div>
+        <div id="kpiIso" class="kpi-value mono-cell">0.000</div>
+        <div id="kpiIsoThresh" class="kpi-meta">Threshold: 0.0000</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Local Outlier Factor</div>
+        <div id="kpiLof" class="kpi-value mono-cell">0.000</div>
+        <div id="kpiLofThresh" class="kpi-meta">Threshold: 0.0000</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Pending Security Alerts</div>
+        <div id="kpiAlertCount" class="kpi-value">0</div>
+        <div id="kpiLastAlertTime" class="kpi-meta">Last: None</div>
+      </div>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-grid">
+      <!-- Left Column: Trend & Window Features -->
+      <div>
+        <!-- Activity Chart -->
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">Voting Activity & Incident Telemetry</div>
+              <div class="panel-subtitle">Rolling 60-minute window event density and authentication failure velocity</div>
+            </div>
+            <span class="mono-cell" style="font-size: 0.75rem; color: var(--text-muted);" id="windowTimeRange">5m Sliding Window</span>
+          </div>
+
+          <div class="chart-container">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Current 5-Minute Window Telemetry -->
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">Active 5-Minute Window Telemetry Features</div>
+              <div class="panel-subtitle">Calculated feature vector feeding unsupervised anomaly scoring</div>
+            </div>
+          </div>
+
+          <table id="featureTable">
+            <thead>
+              <tr>
+                <th>Feature Name</th>
+                <th>Current Value</th>
+                <th>Baseline Context</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Total Event Frequency (<code>event_count</code>)</td>
+                <td id="featEventCount" class="mono-cell">0</td>
+                <td style="color: var(--text-muted);">Normal baseline: 1–35 events/win</td>
+              </tr>
+              <tr>
+                <td>Cast Ballots (<code>vote_count</code>)</td>
+                <td id="featVoteCount" class="mono-cell">0</td>
+                <td style="color: var(--text-muted);">Normal baseline: 1–15 votes/win</td>
+              </tr>
+              <tr>
+                <td>Failed Login Ratio (<code>failed_login_ratio</code>)</td>
+                <td id="featFailRatio" class="mono-cell">0.0%</td>
+                <td style="color: var(--text-muted);">Spikes indicate credential stuffing</td>
+              </tr>
+              <tr>
+                <td>Inter-Arrival Time Variance (<code>inter_arrival_variance</code>)</td>
+                <td id="featVariance" class="mono-cell">0.00</td>
+                <td style="color: var(--text-muted);">Near-zero collapses indicate automated bot scripts</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right Column: Live Incident Alert Feed -->
+      <div>
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">Security Alert Incident Feed</div>
+              <div class="panel-subtitle">Human-in-the-loop triage queue</div>
+            </div>
+          </div>
+
+          <div id="alertContainer">
+            <table id="alertTable">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Risk</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="alertTableBody">
+                <tr>
+                  <td colspan="3" class="empty-state">No anomalous incidents detected in current window.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal for Investigating Alert -->
+  <div id="investigateModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-title">Investigate Security Alert</div>
+      <div id="modalDesc" class="modal-desc">Document findings and verification conclusion.</div>
+      <textarea id="modalNotes" placeholder="Enter security operator notes (e.g. Injected test verified, false positive, voter network anomaly)..."></textarea>
+      <div class="modal-footer">
+        <button id="modalCancelBtn" class="btn-outline">Cancel</button>
+        <button id="modalSubmitBtn" class="btn-outline" style="background: var(--accent); color: white; border-color: var(--accent);">Confirm Resolution</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let activeAlertId = null;
+
+    // Canvas line renderer
+    function renderTrend(points) {
+      const canvas = document.getElementById('trendChart');
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      const w = rect.width;
+      const h = rect.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      if (!points || points.length === 0) {
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '12px Inter';
+        ctx.fillText('Awaiting live telemetry streams...', w / 2 - 80, h / 2);
+        return;
+      }
+
+      // Draw subtle grid lines
+      ctx.strokeStyle = '#f1f5f9';
+      ctx.lineWidth = 1;
+      for (let y = 20; y < h; y += 40) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+
+      const maxVal = Math.max(...points.map(p => Math.max(p.event_count, p.auth_fail_count, 5)));
+      const stepX = w / (points.length - 1 || 1);
+
+      // Draw Event Count line (greyscale/near-black)
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      points.forEach((p, i) => {
+        const x = i * stepX;
+        const y = h - 20 - ((p.event_count / maxVal) * (h - 40));
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      // Draw Auth Fail line (red risk indicator)
+      ctx.strokeStyle = '#dc2626';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      points.forEach((p, i) => {
+        const x = i * stepX;
+        const y = h - 20 - ((p.auth_fail_count / maxVal) * (h - 40));
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+    }
+
+    // Refresh telemetry
+    async function refreshDashboard() {
+      try {
+        // 1. Current Window Score
+        const winRes = await fetch('/api/current-window-score');
+        if (winRes.ok) {
+          const winData = await winRes.json();
+          
+          const riskElem = document.getElementById('kpiRisk');
+          riskElem.textContent = winData.risk_level;
+          riskElem.className = `kpi-value risk-indicator ${winData.risk_level.toLowerCase()}`;
+          
+          document.getElementById('kpiFlagged').textContent = `Flagged: ${winData.flagged}`;
+          document.getElementById('kpiIso').textContent = winData.iso_score !== null ? winData.iso_score.toFixed(4) : 'N/A';
+          document.getElementById('kpiLof').textContent = winData.lof_score !== null ? winData.lof_score.toFixed(4) : 'N/A';
+
+          document.getElementById('featEventCount').textContent = winData.event_count;
+          document.getElementById('featVoteCount').textContent = winData.vote_count;
+          document.getElementById('featFailRatio').textContent = (winData.failed_login_ratio * 100).toFixed(1) + '%';
+          document.getElementById('featVariance').textContent = winData.inter_arrival_variance !== null ? winData.inter_arrival_variance.toFixed(2) : '0.00';
+        }
+
+        // 2. Alerts
+        const alertRes = await fetch('/api/alerts');
+        if (alertRes.ok) {
+          const alerts = await alertRes.json();
+          const pending = alerts.filter(a => !a.investigated);
+          document.getElementById('kpiAlertCount').textContent = pending.length;
+          
+          if (alerts.length > 0) {
+            const lastTime = new Date(alerts[0].created_at).toLocaleTimeString();
+            document.getElementById('kpiLastAlertTime').textContent = `Last: ${lastTime}`;
+          }
+
+          const tbody = document.getElementById('alertTableBody');
+          tbody.innerHTML = '';
+
+          if (alerts.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" class="empty-state">No anomalous incidents detected in current window.</td></tr>';
+          } else {
+            alerts.slice(0, 10).forEach(a => {
+              const tr = document.createElement('tr');
+              const tStr = new Date(a.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+              const riskLvl = a.window ? a.window.risk_level : 'Medium';
+              const riskClass = riskLvl.toLowerCase();
+
+              tr.innerHTML = `
+                <td class="mono-cell">${tStr}</td>
+                <td><span class="risk-indicator ${riskClass}">${riskLvl}</span></td>
+                <td>
+                  ${a.investigated 
+                    ? `<span class="btn-action investigated">Investigated</span>` 
+                    : `<button class="btn-action" onclick="openInvestigateModal(${a.alert_id})">Investigate</button>`
+                  }
+                </td>
+              `;
+              tbody.appendChild(tr);
+            });
+          }
+        }
+
+        // 3. Activity Trend
+        const trendRes = await fetch('/api/activity-trend?range=1h');
+        if (trendRes.ok) {
+          const trendData = await trendRes.json();
+          renderTrend(trendData.points);
+        }
+      } catch (err) {
+        console.warn('Dashboard sync error:', err);
+      }
+    }
+
+    // Modal logic
+    function openInvestigateModal(alertId) {
+      activeAlertId = alertId;
+      document.getElementById('modalDesc').textContent = `Alert ID #${alertId} triage disposition. Record verification findings below.`;
+      document.getElementById('modalNotes').value = '';
+      document.getElementById('investigateModal').classList.remove('hidden');
+    }
+
+    document.getElementById('modalCancelBtn').addEventListener('click', () => {
+      document.getElementById('investigateModal').classList.add('hidden');
+      activeAlertId = null;
+    });
+
+    document.getElementById('modalSubmitBtn').addEventListener('click', async () => {
+      if (!activeAlertId) return;
+      const notes = document.getElementById('modalNotes').value.trim();
+
+      try {
+        await fetch(`/api/alerts/${activeAlertId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            investigated: true,
+            notes: notes || 'Investigated by operator'
+          })
+        });
+        document.getElementById('investigateModal').classList.add('hidden');
+        activeAlertId = null;
+        refreshDashboard();
+      } catch (err) {
+        alert('Failed to update alert: ' + err.message);
+      }
+    });
+
+
+    // Election Schedule & Test Mode sync
+    async function syncElectionWindow() {
+      try {
+        const res = await fetch('/api/election/config');
+        if (res.ok) {
+          const cfg = await res.json();
+          const label = document.getElementById('electionStatusLabel');
+          const timer = document.getElementById('electionWindowTimer');
+          const btn = document.getElementById('toggleTestModeBtn');
+
+          label.textContent = cfg.status_label;
+          label.style.color = cfg.is_open ? '#059669' : '#d97706';
+
+          const hrs = Math.floor(cfg.time_remaining_seconds / 3600);
+          const mins = Math.floor((cfg.time_remaining_seconds % 3600) / 60);
+          const secs = cfg.time_remaining_seconds % 60;
+          timer.textContent = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+          if (cfg.test_mode) {
+            btn.textContent = '🔒 Lock to Official 6:00 PM Window';
+            btn.style.color = '#dc2626';
+            btn.style.borderColor = '#fca5a5';
+          } else {
+            btn.textContent = '🔓 Unlock Early Test Mode';
+            btn.style.color = '#0f172a';
+            btn.style.borderColor = 'var(--border)';
+          }
+        }
+      } catch (err) {
+        console.warn('Election sync error:', err);
+      }
+    }
+
+    document.getElementById('toggleTestModeBtn').addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/election/toggle-test-mode', { method: 'POST' });
+        if (res.ok) {
+          syncElectionWindow();
+        }
+      } catch (err) {
+        alert('Toggle failed: ' + err.message);
+      }
+    });
+
+    document.getElementById('refreshBtn').addEventListener('click', refreshDashboard);
+
+    document.getElementById('resetTelemetryBtn').addEventListener('click', async () => {
+      if (confirm('Clear all telemetry events, alerts, and reset voter status for a clean testing session?')) {
+        try {
+          const res = await fetch('/api/admin/reset-telemetry', { method: 'POST' });
+          if (res.ok) {
+            refreshDashboard();
+            syncElectionWindow();
+          }
+        } catch (err) {
+          alert('Reset error: ' + err.message);
+        }
+      }
+    });
+
+    // Initial load and periodic poll every 3 seconds
+    refreshDashboard();
+    syncElectionWindow();
+    setInterval(refreshDashboard, 3000);
+    setInterval(syncElectionWindow, 1000);
+  </script>
+</body>
+</html>

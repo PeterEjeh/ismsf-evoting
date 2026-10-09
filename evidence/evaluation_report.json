@@ -1,0 +1,91 @@
+{
+  "timestamp": "2026-09-30T17:06:52.946402+00:00",
+  "methodology": "Trained strictly on normal behaviour. Tested on out-of-sample live red-team attacks and cross-benchmarks.",
+  "live_red_team_injection": {
+    "total_attack_scenarios": 4,
+    "detected_scenarios": 4,
+    "detection_recall": 1.0,
+    "model_comparison": {
+      "isolation_forest_detections": 4,
+      "local_outlier_factor_detections": 0,
+      "complementary_rate": 4
+    },
+    "scenario_details": [
+      {
+        "attack_name": "Credential Stuffing",
+        "description": "25 rapid failed authentications targeting a single account",
+        "start_time": "2026-09-30T16:37:02.708328+00:00",
+        "end_time": "2026-09-30T16:37:04.596743+00:00",
+        "events_injected": 25,
+        "flagged": true,
+        "risk_level": "Medium",
+        "iso_score": -0.0809313072751996,
+        "lof_score": 0.5057472635151159,
+        "failed_login_ratio": 1.0,
+        "target_ip": "198.51.100.44"
+      },
+      {
+        "attack_name": "Bot-Driven Vote Stuffing",
+        "description": "30 rapid automated ballot casting events with collapsed delta-t variance",
+        "start_time": "2026-09-30T16:37:04.757943+00:00",
+        "end_time": "2026-09-30T16:37:06.754575+00:00",
+        "events_injected": 30,
+        "flagged": true,
+        "risk_level": "Medium",
+        "iso_score": -0.05358537652215711,
+        "lof_score": 0.5057472635151159,
+        "inter_arrival_variance": 0.0005816071841886793,
+        "target_ip": "203.0.113.88"
+      },
+      {
+        "attack_name": "Off-Hours Surge",
+        "description": "High-volume surge deviating from standard voting density",
+        "start_time": "2026-09-30T16:37:06.850661+00:00",
+        "end_time": "2026-09-30T16:37:09.249954+00:00",
+        "events_injected": 40,
+        "flagged": true,
+        "risk_level": "Medium",
+        "iso_score": -0.1198110792230016,
+        "lof_score": 0.5057472635151159,
+        "event_count": 95,
+        "target_ip": "192.0.2.15"
+      },
+      {
+        "attack_name": "Access-Endpoint Probing",
+        "description": "Repeated unauthorized probes on administrative functions",
+        "start_time": "2026-09-30T16:37:09.347939+00:00",
+        "end_time": "2026-09-30T16:37:10.892672+00:00",
+        "events_injected": 20,
+        "flagged": true,
+        "risk_level": "Medium",
+        "iso_score": -0.13037380185045022,
+        "lof_score": 0.5057472635151159,
+        "target_ip": "198.51.100.99"
+      }
+    ]
+  },
+  "independent_cross_benchmarks": {
+    "hdfs": {
+      "total_windows": 1,
+      "true_positives": 1,
+      "false_positives": 0,
+      "true_negatives": 0,
+      "false_negatives": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "false_positive_rate": 0.0
+    },
+    "bgl": {
+      "total_windows": 9,
+      "true_positives": 8,
+      "false_positives": 1,
+      "true_negatives": 0,
+      "false_negatives": 0,
+      "precision": 0.8888888888888888,
+      "recall": 1.0,
+      "f1_score": 0.9411764705882353,
+      "false_positive_rate": 1.0
+    }
+  }
+}

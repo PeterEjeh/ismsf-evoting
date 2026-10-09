@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATBU Bauchi — SUG General Elections E-Voting Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --border-dark: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent: #0f172a;
+      --accent-hover: #1e293b;
+      --success: #059669;
+      --danger: #dc2626;
+      --atbu-green: #065f46;
+      --radius: 8px;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0.85rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      background: var(--atbu-green);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-info h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+    }
+
+    .brand-info p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .countdown-box {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+
+    .countdown-timer {
+      font-family: var(--mono);
+      font-weight: 600;
+      color: var(--atbu-green);
+    }
+
+    .session-badge {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 0.35rem 0.65rem;
+      border-radius: 6px;
+      background: #ffffff;
+      font-family: var(--mono);
+    }
+
+    main {
+      flex: 1;
+      max-width: 680px;
+      width: 100%;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    /* Tabs */
+    .tab-nav {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+
+    .tab-btn.active {
+      color: var(--atbu-green);
+      border-bottom-color: var(--atbu-green);
+      font-weight: 600;
+    }
+
+    .card-title {
+      font-size: 1.35rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      letter-spacing: -0.02em;
+    }
+
+    .card-subtitle {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+
+    .form-group {
+      margin-bottom: 1.15rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+      color: var(--text-main);
+    }
+
+    input[type="text"], input[type="password"], select {
+      width: 100%;
+      padding: 0.75rem 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      color: var(--text-main);
+      outline: none;
+      background: white;
+      transition: border-color 0.15s;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--atbu-green);
+    }
+
+    .input-hint {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.3rem;
+      font-family: var(--mono);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 0.75rem 1.25rem;
+      background: var(--atbu-green);
+      color: white;
+      border: 1px solid var(--atbu-green);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 1rem;
+    }
+
+    .btn:hover {
+      background: #044e39;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      margin-top: 0.75rem;
+    }
+
+    .btn-secondary:hover {
+      background: #f8fafc;
+    }
+
+    .contest-section {
+      margin-bottom: 1.75rem;
+    }
+
+    .contest-header {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .contest-tag {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .candidate-list {
+      display: grid;
+      gap: 0.6rem;
+    }
+
+    .candidate-card {
+      border: 1px solid var(--border);
+      padding: 0.85rem 1rem;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .candidate-card:hover {
+      border-color: var(--border-dark);
+      background: #fcfcfd;
+    }
+
+    .candidate-card.selected {
+      border-color: var(--atbu-green);
+      background: #ecfdf5;
+    }
+
+    .candidate-info h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .candidate-info p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .notice {
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      margin-bottom: 1.25rem;
+      line-height: 1.4;
+    }
+
+    .notice-error {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: var(--danger);
+    }
+
+    .notice-success {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: var(--success);
+    }
+
+    .voter-card-summary {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    .voter-card-item span {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .telemetry-indicator {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="brand-logo">AT</div>
+      <div class="brand-info">
+        <h1>Abubakar Tafawa Balewa University, Bauchi</h1>
+        <p>Student Union Government (SUG) General Elections 2026</p>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="countdown-box">
+        <span>Election Window:</span>
+        <span id="electionCountdown" class="countdown-timer">Syncing...</span>
+      </div>
+      <div id="sessionIndicator" class="session-badge">Not Logged In</div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Screen 1: Auth & Registration Screen -->
+    <div id="authScreen" class="card">
+      <div class="tab-nav">
+        <button id="tabLoginBtn" class="tab-btn active" onclick="switchAuthTab('login')">Student Voter Login</button>
+        <button id="tabRegisterBtn" class="tab-btn" onclick="switchAuthTab('register')">Register / Generate PIN</button>
+      </div>
+
+      <!-- Tab Content 1: Login -->
+      <div id="loginTabContent">
+        <h2 class="card-title">SUG Ballot Authentication</h2>
+        <p class="card-subtitle">Enter your official ATBU Registration Number and secret 4-digit voting PIN to access the official ballot.</p>
+
+        <div id="loginError" class="notice notice-error hidden"></div>
+
+        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-size: 0.78rem; padding: 0.6rem 0.85rem; border-radius: 6px; margin-bottom: 1.25rem;">
+          🕒 <strong>Official Voting Schedule:</strong> Friday, 9th October 2026, 6:00 PM – 10:00 PM (WAT)
+        </div>
+
+        <div class="form-group">
+          <label for="loginRegNo">ATBU Registration Number</label>
+          <input type="text" id="loginRegNo" placeholder="e.g. 21/48920U/1" autocomplete="off">
+          <div class="input-hint">Format: YY/XXXXXU/L or YY/XXXXXD/L (Sample: 21/48920U/1 | PIN: 1234)</div>
+        </div>
+
+        <div class="form-group">
+          <label for="loginPin">Secret Voting PIN</label>
+          <input type="password" id="loginPin" placeholder="Enter 4-digit PIN" maxlength="8" autocomplete="off">
+        </div>
+
+        <button id="loginSubmitBtn" class="btn">Authenticate & Access Ballot</button>
+      </div>
+
+      <!-- Tab Content 2: Register Voter -->
+      <div id="registerTabContent" class="hidden">
+        <h2 class="card-title">Voter PIN Registration</h2>
+        <p class="card-subtitle">Eligible students can register their ATBU Registration Number and set their secret voting PIN.</p>
+
+        <div id="registerNotice" class="notice hidden"></div>
+
+        <div class="form-group">
+          <label for="regRegNo">ATBU Registration Number</label>
+          <input type="text" id="regRegNo" placeholder="e.g. 22/55102U/2" autocomplete="off">
+          <div class="input-hint">Format: YY/XXXXXU/L (e.g. 22/51000U/1)</div>
+        </div>
+
+        <div class="form-group">
+          <label for="regFullName">Full Legal Name</label>
+          <input type="text" id="regFullName" placeholder="e.g. Usman Bello Aliyu">
+        </div>
+
+        <div class="form-group">
+          <label for="regFaculty">Faculty</label>
+          <select id="regFaculty">
+            <option value="Faculty of Engineering & Technology">Faculty of Engineering & Technology</option>
+            <option value="Faculty of Science">Faculty of Science</option>
+            <option value="Faculty of Technology Education">Faculty of Technology Education</option>
+            <option value="Faculty of Management Sciences">Faculty of Management Sciences</option>
+            <option value="Faculty of Environmental Technology">Faculty of Environmental Technology</option>
+            <option value="College of Medical Sciences">College of Medical Sciences</option>
+            <option value="Faculty of Agriculture">Faculty of Agriculture</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="regPin">Choose Secret Voting PIN</label>
+          <input type="password" id="regPin" placeholder="4-8 digits" maxlength="8">
+        </div>
+
+        <button id="registerSubmitBtn" class="btn">Generate & Save Voting PIN</button>
+      </div>
+
+      <div class="telemetry-indicator">Protected by ISMSF Real-Time Telemetry Security Engine</div>
+    </div>
+
+    <!-- Screen 2: Official SUG Ballot Screen -->
+    <div id="ballotScreen" class="card hidden">
+      <div id="voterBanner" class="voter-card-summary">
+        <div class="voter-card-item">
+          <span>Student Name</span>
+          <strong id="summaryName">—</strong>
+        </div>
+        <div class="voter-card-item">
+          <span>Registration No</span>
+          <strong id="summaryReg" class="mono-cell">—</strong>
+        </div>
+        <div class="voter-card-item">
+          <span>Faculty</span>
+          <span id="summaryFaculty">—</span>
+        </div>
+        <div class="voter-card-item">
+          <span>Election</span>
+          <span>ATBU SUG General 2026</span>
+        </div>
+      </div>
+
+      <h2 class="card-title">Official SUG Executive Ballot</h2>
+      <p class="card-subtitle">Cast your confidential vote for each executive office below. Only one vote per position is permitted.</p>
+
+      <div id="ballotError" class="notice notice-error hidden"></div>
+
+      <!-- Contest 1: SUG President -->
+      <div class="contest-section">
+        <div class="contest-header">
+          <span>1. Office of the SUG President</span>
+          <span class="contest-tag">Select 1 Candidate</span>
+        </div>
+        <div class="candidate-list">
+          <div class="candidate-card" onclick="selectCandidate('president', 'Comrade Abubakar Sadiq')">
+            <input type="radio" name="president" value="Comrade Abubakar Sadiq">
+            <div class="candidate-info">
+              <h4>Comrade Abubakar Sadiq</h4>
+              <p>Faculty of Engineering & Technology — 500L Mechatronics</p>
+            </div>
+          </div>
+          <div class="candidate-card" onclick="selectCandidate('president', 'Comrade Chinedu Victor')">
+            <input type="radio" name="president" value="Comrade Chinedu Victor">
+            <div class="candidate-info">
+              <h4>Comrade Chinedu Victor</h4>
+              <p>Faculty of Science — 400L Computer Science</p>
+            </div>
+          </div>
+          <div class="candidate-card" onclick="selectCandidate('president', 'Comrade Amina Zayyad')">
+            <input type="radio" name="president" value="Comrade Amina Zayyad">
+            <div class="candidate-info">
+              <h4>Comrade Amina Zayyad</h4>
+              <p>Faculty of Technology Education — 400L Woodwork Tech</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contest 2: Vice President -->
+      <div class="contest-section">
+        <div class="contest-header">
+          <span>2. Office of the Vice President</span>
+          <span class="contest-tag">Select 1 Candidate</span>
+        </div>
+        <div class="candidate-list">
+          <div class="candidate-card" onclick="selectCandidate('vp', 'Zainab Mohammed')">
+            <input type="radio" name="vp" value="Zainab Mohammed">
+            <div class="candidate-info">
+              <h4>Zainab Mohammed</h4>
+              <p>College of Medical Sciences — 400L Medicine & Surgery</p>
+            </div>
+          </div>
+          <div class="candidate-card" onclick="selectCandidate('vp', 'Blessing Johnson')">
+            <input type="radio" name="vp" value="Blessing Johnson">
+            <div class="candidate-info">
+              <h4>Blessing Johnson</h4>
+              <p>Faculty of Management Sciences — 300L Accounting</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contest 3: Secretary General -->
+      <div class="contest-section">
+        <div class="contest-header">
+          <span>3. Office of the Secretary General</span>
+          <span class="contest-tag">Select 1 Candidate</span>
+        </div>
+        <div class="candidate-list">
+          <div class="candidate-card" onclick="selectCandidate('secgen', 'Haruna Kabir')">
+            <input type="radio" name="secgen" value="Haruna Kabir">
+            <div class="candidate-info">
+              <h4>Haruna Kabir</h4>
+              <p>Faculty of Environmental Technology — 400L Architecture</p>
+            </div>
+          </div>
+          <div class="candidate-card" onclick="selectCandidate('secgen', 'Samuel D. Olatunji')">
+            <input type="radio" name="secgen" value="Samuel D. Olatunji">
+            <div class="candidate-info">
+              <h4>Samuel D. Olatunji</h4>
+              <p>Faculty of Science — 300L Chemistry</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button id="castBallotBtn" class="btn">Cast Official SUG Ballot</button>
+      <button id="cancelBallotBtn" class="btn btn-secondary">Cancel & Logout</button>
+    </div>
+
+    <!-- Screen 3: Vote Confirmation Screen -->
+    <div id="confirmationScreen" class="card hidden">
+      <div class="notice notice-success">Ballot Cast Successfully & Cryptographically Recorded</div>
+      <h2 class="card-title">Vote Confirmed</h2>
+      <p class="card-subtitle">Thank you for participating in the ATBU SUG General Election. Your vote has been securely recorded.</p>
+      
+      <div class="form-group">
+        <label>Official Digital Ballot Receipt</label>
+        <input type="text" id="ballotReceipt" readonly class="mono-cell" style="font-weight: 600;">
+      </div>
+
+      <button id="exitBtn" class="btn">Exit Voting Session</button>
+    </div>
+  </main>
+
+  <script>
+    let activeSessionId = null;
+    let activeVoter = null;
+    let selectedChoices = {};
+    const API = '/api';
+
+    // Countdown Timer logic
+    async function syncElectionTimer() {
+      try {
+        const res = await fetch(`${API}/election/config`);
+        if (res.ok) {
+          const cfg = await res.json();
+          const countdownElem = document.getElementById('electionCountdown');
+          const hrs = Math.floor(cfg.time_remaining_seconds / 3600);
+          const mins = Math.floor((cfg.time_remaining_seconds % 3600) / 60);
+          const secs = cfg.time_remaining_seconds % 60;
+          const timerStr = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+          if (cfg.test_mode) {
+            countdownElem.textContent = `TEST MODE: ${timerStr}`;
+            countdownElem.style.color = '#065f46';
+          } else if (cfg.status_label && cfg.status_label.includes('OPENS')) {
+            countdownElem.textContent = `OPENS IN ${timerStr}`;
+            countdownElem.style.color = '#d97706';
+          } else if (cfg.is_open) {
+            countdownElem.textContent = `CLOSES IN ${timerStr}`;
+            countdownElem.style.color = '#065f46';
+          } else {
+            countdownElem.textContent = 'WINDOW CLOSED';
+            countdownElem.style.color = '#dc2626';
+          }
+        }
+      } catch (err) {
+        console.warn('Countdown sync error:', err);
+      }
+    }
+    syncElectionTimer();
+    setInterval(syncElectionTimer, 1000);
+
+    // Tab switching
+    function switchAuthTab(tab) {
+      const loginTab = document.getElementById('loginTabContent');
+      const regTab = document.getElementById('registerTabContent');
+      const loginBtn = document.getElementById('tabLoginBtn');
+      const regBtn = document.getElementById('tabRegisterBtn');
+
+      if (tab === 'login') {
+        loginTab.classList.remove('hidden');
+        regTab.classList.add('hidden');
+        loginBtn.classList.add('active');
+        regBtn.classList.remove('active');
+      } else {
+        loginTab.classList.add('hidden');
+        regTab.classList.remove('hidden');
+        loginBtn.classList.remove('active');
+        regBtn.classList.add('active');
+      }
+    }
+
+    // Telemetry dispatcher
+    async function sendTelemetry(eventType, metadata = {}) {
+      const payload = {
+        session_id: activeSessionId || 'unauthenticated',
+        event_type: eventType,
+        ip_address: window.location.hostname || '127.0.0.1',
+        timestamp: new Date().toISOString(),
+        source: 'trial'
+      };
+
+      try {
+        await fetch(`${API}/events`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch (err) {
+        console.warn('Telemetry warning:', err);
+      }
+    }
+
+    // Ballot selection
+    function selectCandidate(contest, candidate) {
+      selectedChoices[contest] = candidate;
+      const radios = document.querySelectorAll(`input[name="${contest}"]`);
+      radios.forEach(r => {
+        const card = r.closest('.candidate-card');
+        if (r.value === candidate) {
+          r.checked = true;
+          card.classList.add('selected');
+        } else {
+          card.classList.remove('selected');
+        }
+      });
+      sendTelemetry('nav', { contest, candidate });
+    }
+
+    // Register Student Voter & PIN
+    document.getElementById('registerSubmitBtn').addEventListener('click', async () => {
+      const regNo = document.getElementById('regRegNo').value.trim();
+      const name = document.getElementById('regFullName').value.trim();
+      const faculty = document.getElementById('regFaculty').value;
+      const pin = document.getElementById('regPin').value.trim();
+      const notice = document.getElementById('registerNotice');
+      notice.className = 'notice hidden';
+
+      if (!regNo || regNo.length < 5) {
+        notice.textContent = 'Please enter a valid ATBU Registration Number (e.g. 21/48920U/1).';
+        notice.className = 'notice notice-error';
+        return;
+      }
+
+      if (!name) {
+        notice.textContent = 'Please enter your full legal student name.';
+        notice.className = 'notice notice-error';
+        return;
+      }
+
+      if (!pin || pin.length < 4) {
+        notice.textContent = 'Secret voting PIN must be at least 4 digits.';
+        notice.className = 'notice notice-error';
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/voters/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            reg_no: regNo,
+            full_name: name,
+            faculty: faculty,
+            pin: pin
+          })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || 'Registration failed');
+        }
+
+        notice.textContent = `Student voter registered successfully! Your PIN has been saved. Switch to the Login tab to cast your ballot.`;
+        notice.className = 'notice notice-success';
+        document.getElementById('loginRegNo').value = regNo;
+      } catch (err) {
+        notice.textContent = err.message;
+        notice.className = 'notice notice-error';
+      }
+    });
+
+    // Authenticate Student Voter
+    document.getElementById('loginSubmitBtn').addEventListener('click', async () => {
+      const regNo = document.getElementById('loginRegNo').value.trim();
+      const pin = document.getElementById('loginPin').value.trim();
+      const errDiv = document.getElementById('loginError');
+      errDiv.classList.add('hidden');
+
+      if (!regNo || !pin) {
+        errDiv.textContent = 'Please enter both your ATBU Registration Number and voting PIN.';
+        errDiv.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/voters/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reg_no: regNo, pin: pin })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || 'Authentication failed');
+        }
+
+        const data = await res.json();
+        activeSessionId = data.session_id;
+        activeVoter = data.voter;
+
+        document.getElementById('sessionIndicator').textContent = `Reg: ${activeVoter.reg_no}`;
+        document.getElementById('summaryName').textContent = activeVoter.full_name;
+        document.getElementById('summaryReg').textContent = activeVoter.reg_no;
+        document.getElementById('summaryFaculty').textContent = activeVoter.faculty || 'Engineering & Technology';
+
+        document.getElementById('authScreen').classList.add('hidden');
+        document.getElementById('ballotScreen').classList.remove('hidden');
+      } catch (err) {
+        errDiv.textContent = err.message;
+        errDiv.classList.remove('hidden');
+      }
+    });
+
+    // Cast Ballot
+    document.getElementById('castBallotBtn').addEventListener('click', async () => {
+      const errDiv = document.getElementById('ballotError');
+      errDiv.classList.add('hidden');
+
+      if (!selectedChoices['president'] || !selectedChoices['vp'] || !selectedChoices['secgen']) {
+        errDiv.textContent = 'Please select a candidate for all contested offices before casting your ballot.';
+        errDiv.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/voters/cast-vote`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: activeSessionId,
+            reg_no: activeVoter.reg_no,
+            choices: selectedChoices
+          })
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || 'Failed to submit vote');
+        }
+
+        const data = await res.json();
+        document.getElementById('ballotReceipt').value = data.receipt_number;
+
+        document.getElementById('ballotScreen').classList.add('hidden');
+        document.getElementById('confirmationScreen').classList.remove('hidden');
+      } catch (err) {
+        errDiv.textContent = err.message;
+        errDiv.classList.remove('hidden');
+      }
+    });
+
+    // Cancel
+    document.getElementById('cancelBallotBtn').addEventListener('click', async () => {
+      if (activeSessionId) {
+        await sendTelemetry('nav', { action: 'logout' });
+        await fetch(`${API}/sessions/${activeSessionId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ended_at: new Date().toISOString() })
+        });
+      }
+      location.reload();
+    });
+
+    // Exit
+    document.getElementById('exitBtn').addEventListener('click', () => {
+      location.reload();
+    });
+  </script>
+</body>
+</html>

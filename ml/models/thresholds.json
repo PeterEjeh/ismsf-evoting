@@ -1,0 +1,15 @@
+{
+  "features": [
+    "event_count",
+    "vote_count",
+    "failed_login_ratio",
+    "inter_arrival_variance"
+  ],
+  "percentile_cutoff": 0.0,
+  "iso_threshold": 0.0,
+  "lof_threshold": 0.0,
+  "trained_at": "2026-09-30T16:23:05.281700+00:00",
+  "train_samples": 18,
+  "val_samples": 6,
+  "test_samples": 7
+}

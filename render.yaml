@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: atbu-ismsf-evoting
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn ingestion.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DATABASE_URL
+        value: sqlite:///./ismsf.db
