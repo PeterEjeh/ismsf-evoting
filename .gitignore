@@ -25,6 +25,7 @@ README.md
 *.docx
 IMPLEMENTATION_PLAN.md
 TASK_LIST.md
+render.yaml
 
 # Datasets and training evidence (large/offline data)
 data/
