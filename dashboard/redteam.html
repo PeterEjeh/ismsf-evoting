@@ -402,7 +402,7 @@
       <pre>1..25 | ForEach-Object { Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/events" -Method Post -Body '{"session_id":"bot_script","event_type":"vote","source":"trial"}' -ContentType "application/json" }</pre>
 
       <div style="font-size: 0.78rem; font-weight: 600; color: #f1f5f9; margin-top: 0.75rem;">PowerShell Rapid Failed Login Loop:</div>
-      <pre>1..20 | ForEach-Object { Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/voters/login" -Method Post -Body '{"reg_no":"21/48920U/1","pin":"0000"}' -ContentType "application/json" -SkipHttpErrorCheck }</pre>
+      <pre>1..20 | ForEach-Object { Invoke-RestMethod -Uri "/api/voters/login" -Method Post -Body '{"reg_no":"TEST/99999U/1","pin":"0000"}' -ContentType "application/json" -SkipHttpErrorCheck }</pre>
     </div>
   </main>
 

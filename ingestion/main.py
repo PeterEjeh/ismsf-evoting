@@ -98,54 +98,6 @@ def seed_default_atbu_data():
             cfg.end_time = end_time_utc
             cfg.title = "Abubakar Tafawa Balewa University (ATBU) SUG General Elections 2026"
             db.commit()
-
-        # 2. Seed realistic ATBU student voters
-        voter_count = db.query(VoterModel).count()
-        if voter_count == 0:
-            sample_voters = [
-                VoterModel(
-                    reg_no="21/48920U/1",
-                    full_name="Ibrahim Musa",
-                    faculty="Faculty of Engineering & Technology",
-                    department="Computer & Communication Engineering",
-                    pin="1234",
-                    has_voted=False
-                ),
-                VoterModel(
-                    reg_no="21/49105U/2",
-                    full_name="Fatima Abubakar",
-                    faculty="Faculty of Science",
-                    department="Mathematical Sciences",
-                    pin="2468",
-                    has_voted=False
-                ),
-                VoterModel(
-                    reg_no="22/55102U/1",
-                    full_name="Emmanuel Okafor",
-                    faculty="Faculty of Technology Education",
-                    department="Electrical Technology",
-                    pin="1357",
-                    has_voted=False
-                ),
-                VoterModel(
-                    reg_no="20/43891D/2",
-                    full_name="Amina Danladi",
-                    faculty="Faculty of Management Sciences",
-                    department="Accounting",
-                    pin="9876",
-                    has_voted=False
-                ),
-                VoterModel(
-                    reg_no="23/61204U/1",
-                    full_name="Usman Bello",
-                    faculty="Faculty of Agriculture",
-                    department="Agricultural Economics",
-                    pin="4321",
-                    has_voted=False
-                ),
-            ]
-            db.add_all(sample_voters)
-            db.commit()
     finally:
         db.close()
 
