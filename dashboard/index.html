@@ -388,10 +388,10 @@
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
         <div>
           <div style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.25rem;">
-            ATBU SUG General Election 2026 — 4-Hour Voting Window
+            ATBU SUG General Election 2026 — Official Voting Window
           </div>
           <div style="font-size: 1rem; font-weight: 600;">
-            Friday, 9th October 2026, 6:00 PM – 10:00 PM (WAT)
+            Saturday, 10th October 2026, 9:00 AM – 4:00 PM (WAT)
           </div>
           <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
             Current Status: <span id="electionStatusLabel" style="font-weight: 600; color: #059669;">SYNCING...</span>
@@ -808,7 +808,7 @@
           timer.textContent = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 
           if (cfg.test_mode) {
-            btn.textContent = '🔒 Lock to Official 6:00 PM Window';
+            btn.textContent = '🔒 Lock to Official 9:00 AM Window';
             btn.style.color = '#dc2626';
             btn.style.borderColor = '#fca5a5';
           } else {

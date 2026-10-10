@@ -74,12 +74,12 @@ app.add_middleware(
 
 
 def seed_default_atbu_data():
-    """Seed initial ATBU election configuration (Friday 9th Oct 2026, 6:00 PM - 10:00 PM WAT) and voters."""
+    """Seed initial ATBU election configuration (Saturday 10th Oct 2026, 9:00 AM - 4:00 PM WAT) and voters."""
     db = SessionLocal()
     try:
-        # 1. Scheduled 4-hour Election Window: Friday, 9th October 2026, 18:00 - 22:00 WAT (17:00 - 21:00 UTC)
-        start_time_utc = datetime(2026, 10, 9, 17, 0, 0, tzinfo=timezone.utc)
-        end_time_utc = datetime(2026, 10, 9, 21, 0, 0, tzinfo=timezone.utc)
+        # 1. Scheduled Election Window: Saturday, 10th October 2026, 9:00 AM - 4:00 PM WAT (08:00 - 15:00 UTC)
+        start_time_utc = datetime(2026, 10, 10, 8, 0, 0, tzinfo=timezone.utc)
+        end_time_utc = datetime(2026, 10, 10, 15, 0, 0, tzinfo=timezone.utc)
 
         cfg = db.query(ElectionConfigModel).filter_by(id=1).first()
         if not cfg:
@@ -206,7 +206,7 @@ def get_election_config(db: Session = Depends(get_db)):
         status_label = "OPEN (PRE-ELECTION TEST MODE)"
         remaining = 14400  # 4 hours
     elif now < start_t:
-        status_label = "OPENS AT 6:00 PM TODAY"
+        status_label = "OPENS AT 9:00 AM TODAY"
         remaining = int(max(0, (start_t - now).total_seconds()))
     elif start_t <= now <= end_t:
         status_label = "OPEN"
@@ -229,11 +229,11 @@ def get_election_config(db: Session = Depends(get_db)):
 
 @app.post("/api/election/toggle-test-mode")
 def toggle_test_mode(db: Session = Depends(get_db)):
-    """Toggle pre-election test mode to permit test voting before 6:00 PM."""
+    """Toggle pre-election test mode to permit test voting before 9:00 AM."""
     cfg = db.query(ElectionConfigModel).filter_by(id=1).first()
     cfg.test_mode = not cfg.test_mode
     db.commit()
-    status_str = "ENABLED (Voting window unlocked for early testing)" if cfg.test_mode else "DISABLED (Strict 6:00 PM - 10:00 PM schedule active)"
+    status_str = "ENABLED (Voting window unlocked for early testing)" if cfg.test_mode else "DISABLED (Strict 9:00 AM - 4:00 PM schedule active)"
     return {"test_mode": cfg.test_mode, "status": status_str}
 
 
@@ -288,7 +288,7 @@ def voter_login(credentials: VoterLogin, request: Request, db: Session = Depends
             log_event_internal(db, ephemeral_id, "auth_fail", client_ip, "trial")
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="ATBU SUG Election window is currently closed. Voting will officially open on Friday, 9th October 2026 from 6:00 PM to 10:00 PM (WAT)."
+                detail="ATBU SUG Election window is currently closed. Voting will officially open on Saturday, 10th October 2026 from 9:00 AM to 4:00 PM (WAT)."
             )
 
     voter = db.query(VoterModel).filter_by(reg_no=reg_clean).first()
