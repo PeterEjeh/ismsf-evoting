@@ -309,6 +309,12 @@
       box-shadow: 0 10px 25px rgba(0,0,0,0.08);
     }
 
+    .modal-card-lg {
+      max-width: 860px;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
     .modal-title {
       font-size: 1.1rem;
       font-weight: 600;
@@ -370,6 +376,7 @@
       </div>
       <a href="/voter" target="_blank" class="btn-outline">Open ATBU Voter Portal ↗</a>
       <a href="/redteam" target="_blank" class="btn-outline" style="border-color: #fca5a5; color: #991b1b;">Red-Team Console ↗</a>
+      <button id="auditLogBtn" class="btn-outline" style="border-color: #93c5fd; color: #1e40af; font-weight: 600;">📋 Election Audit Log</button>
       <button id="resetTelemetryBtn" class="btn-outline" style="color: var(--danger); border-color: #fecaca;">Clear Alerts / Reset</button>
       <button id="refreshBtn" class="btn-outline">↻ Refresh</button>
     </div>
@@ -529,6 +536,84 @@
       <div class="modal-footer">
         <button id="modalCancelBtn" class="btn-outline">Cancel</button>
         <button id="modalSubmitBtn" class="btn-outline" style="background: var(--accent); color: white; border-color: var(--accent);">Confirm Resolution</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for Full Election Audit Log -->
+  <div id="auditLogModal" class="modal-overlay hidden">
+    <div class="modal-card modal-card-lg">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+        <div>
+          <div class="modal-title" style="font-size: 1.25rem;">📋 Election Audit Trail & Security Log</div>
+          <div class="modal-desc" style="margin-bottom: 0;">Comprehensive telemetry events, turnout verification, and post-election audit metrics.</div>
+        </div>
+        <button id="auditLogCloseXBtn" class="btn-outline" style="padding: 0.25rem 0.6rem; font-size: 0.9rem;">✕</button>
+      </div>
+
+      <!-- Quick Summary Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; margin: 1rem 0;">
+        <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem;">
+          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Registered</div>
+          <div id="auditTotalVoters" style="font-size: 1.25rem; font-weight: 700;">0</div>
+        </div>
+        <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem;">
+          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Votes Cast</div>
+          <div id="auditVotesCast" style="font-size: 1.25rem; font-weight: 700; color: #059669;">0</div>
+        </div>
+        <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem;">
+          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Turnout</div>
+          <div id="auditTurnout" style="font-size: 1.25rem; font-weight: 700;">0%</div>
+        </div>
+        <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem;">
+          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Total Events</div>
+          <div id="auditTotalEvents" style="font-size: 1.25rem; font-weight: 700;">0</div>
+        </div>
+        <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem;">
+          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Alerts Flagged</div>
+          <div id="auditTotalAlerts" style="font-size: 1.25rem; font-weight: 700; color: #dc2626;">0</div>
+        </div>
+      </div>
+
+      <!-- Filter bar -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div style="display: flex; gap: 0.4rem; align-items: center;">
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Filter Type:</span>
+          <select id="auditEventFilter" style="font-size: 0.8rem; padding: 0.25rem 0.5rem; border: 1px solid var(--border); border-radius: 4px;">
+            <option value="all">All Events</option>
+            <option value="vote">Vote Cast</option>
+            <option value="login">Student Login</option>
+            <option value="auth_fail">Auth Failure</option>
+            <option value="admin_access">Admin Access</option>
+          </select>
+        </div>
+        <button id="downloadAuditJsonBtn" class="btn-outline" style="background: #1e40af; color: white; border-color: #1e40af; font-size: 0.8rem; font-weight: 600;">
+          📥 Download Full JSON Audit Log
+        </button>
+      </div>
+
+      <!-- Events Table -->
+      <div style="max-height: 280px; overflow-y: auto; border: 1px solid var(--border); border-radius: 6px;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
+          <thead style="background: #f1f5f9; position: sticky; top: 0;">
+            <tr>
+              <th style="padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border);">Time (UTC)</th>
+              <th style="padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border);">Type</th>
+              <th style="padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border);">Session ID</th>
+              <th style="padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border);">Client IP</th>
+              <th style="padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border);">Label</th>
+            </tr>
+          </thead>
+          <tbody id="auditEventsTableBody">
+            <tr>
+              <td colspan="5" style="text-align: center; padding: 1.5rem; color: var(--text-muted);">Loading audit trail...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="modal-footer" style="margin-top: 1.25rem;">
+        <button id="auditLogCloseBtn" class="btn-outline">Close</button>
       </div>
     </div>
   </div>
@@ -736,6 +821,90 @@
         console.warn('Election sync error:', err);
       }
     }
+
+    // =========================================================================
+    // Election Audit Trail & Log Modal Handlers
+    // =========================================================================
+    let cachedAuditEvents = [];
+
+    async function loadAndShowAuditLog() {
+      const modal = document.getElementById('auditLogModal');
+      modal.classList.remove('hidden');
+      const tbody = document.getElementById('auditEventsTableBody');
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 1.5rem; color: var(--text-muted);">Fetching election telemetry & audit trail...</td></tr>';
+
+      try {
+        const res = await fetch('/api/admin/audit-log');
+        if (!res.ok) throw new Error('Failed to load audit logs');
+        const data = await res.json();
+
+        // Update Summary Cards
+        document.getElementById('auditTotalVoters').textContent = data.summary.total_registered_voters;
+        document.getElementById('auditVotesCast').textContent = data.summary.total_votes_cast;
+        document.getElementById('auditTurnout').textContent = `${data.summary.turnout_percentage}%`;
+        document.getElementById('auditTotalEvents').textContent = data.summary.total_telemetry_events;
+        document.getElementById('auditTotalAlerts').textContent = data.summary.total_anomaly_alerts;
+
+        cachedAuditEvents = data.telemetry_events || [];
+        renderAuditEventsTable();
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #dc2626; padding: 1.5rem;">Error: ${err.message}</td></tr>`;
+      }
+    }
+
+    function renderAuditEventsTable() {
+      const tbody = document.getElementById('auditEventsTableBody');
+      const filter = document.getElementById('auditEventFilter').value;
+
+      let filtered = cachedAuditEvents;
+      if (filter !== 'all') {
+        filtered = cachedAuditEvents.filter(e => e.event_type === filter);
+      }
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 1.5rem; color: var(--text-muted);">No telemetry events recorded yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(e => {
+        let typeBadge = `<span style="padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 0.72rem; background: #e2e8f0; color: #475569;">${e.event_type}</span>`;
+        if (e.event_type === 'vote') {
+          typeBadge = `<span style="padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 0.72rem; background: #dcfce7; color: #166534;">vote</span>`;
+        } else if (e.event_type === 'auth_fail') {
+          typeBadge = `<span style="padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 0.72rem; background: #fee2e2; color: #991b1b;">auth_fail</span>`;
+        } else if (e.event_type === 'login') {
+          typeBadge = `<span style="padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 0.72rem; background: #e0f2fe; color: #075985;">login</span>`;
+        }
+
+        const labelBadge = e.ground_truth_label === 'anomalous'
+          ? `<span style="color: #dc2626; font-weight: 600;">anomalous</span>`
+          : `<span style="color: #64748b;">normal</span>`;
+
+        const timeStr = e.timestamp ? e.timestamp.replace('T', ' ').substring(11, 19) : '--:--:--';
+
+        return `
+          <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 0.45rem 0.75rem; font-family: monospace;">${timeStr}</td>
+            <td style="padding: 0.45rem 0.75rem;">${typeBadge}</td>
+            <td style="padding: 0.45rem 0.75rem; font-family: monospace; font-size: 0.75rem; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${e.session_id}">${e.session_id}</td>
+            <td style="padding: 0.45rem 0.75rem; font-family: monospace;">${e.ip_address || '127.0.0.1'}</td>
+            <td style="padding: 0.45rem 0.75rem;">${labelBadge}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    document.getElementById('auditLogBtn').addEventListener('click', loadAndShowAuditLog);
+    document.getElementById('auditLogCloseBtn').addEventListener('click', () => {
+      document.getElementById('auditLogModal').classList.add('hidden');
+    });
+    document.getElementById('auditLogCloseXBtn').addEventListener('click', () => {
+      document.getElementById('auditLogModal').classList.add('hidden');
+    });
+    document.getElementById('downloadAuditJsonBtn').addEventListener('click', () => {
+      window.location.href = '/api/admin/audit-log?download=true';
+    });
+    document.getElementById('auditEventFilter').addEventListener('change', renderAuditEventsTable);
 
     document.getElementById('toggleTestModeBtn').addEventListener('click', async () => {
       try {

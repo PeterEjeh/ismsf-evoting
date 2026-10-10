@@ -23,7 +23,7 @@ import pandas as pd
 import numpy as np
 from fastapi import FastAPI, Depends, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse, Response
 from sqlalchemy.orm import Session
 
 from ingestion.db import (
@@ -666,6 +666,97 @@ def get_activity_trend(range: str = Query("1h", regex="^(1h|6h|24h)$"), db: Sess
     ]
 
     return ActivityTrendResponse(range=range, points=points)
+
+
+# ==============================================================================
+# Election Audit Log & Post-Election Report Endpoints
+# ==============================================================================
+
+@app.get("/api/admin/audit-log")
+def get_audit_log(download: bool = False, db: Session = Depends(get_db)):
+    """Retrieve or export complete end-to-end election audit logs, telemetry, and security incident records."""
+    cfg = db.query(ElectionConfigModel).filter_by(id=1).first()
+    voters = db.query(VoterModel).all()
+    events = db.query(EventModel).order_by(EventModel.timestamp.asc()).all()
+    windows = db.query(WindowScoreModel).order_by(WindowScoreModel.window_start.asc()).all()
+    alerts = db.query(AlertModel).order_by(AlertModel.created_at.asc()).all()
+
+    total_voters = len(voters)
+    votes_cast = sum(1 for v in voters if v.has_voted)
+    turnout = (votes_cast / total_voters * 100) if total_voters > 0 else 0.0
+
+    log_data = {
+        "election_title": cfg.title if cfg else "ATBU SUG General Elections 2026",
+        "generated_at": utc_now().isoformat(),
+        "summary": {
+            "total_registered_voters": total_voters,
+            "total_votes_cast": votes_cast,
+            "turnout_percentage": round(turnout, 2),
+            "total_telemetry_events": len(events),
+            "total_anomaly_alerts": len(alerts),
+            "resolved_alerts": sum(1 for a in alerts if a.investigated)
+        },
+        "voters_audit": [
+            {
+                "reg_no": v.reg_no,
+                "full_name": v.full_name,
+                "faculty": v.faculty,
+                "department": v.department,
+                "has_voted": v.has_voted,
+                "voted_at": v.voted_at.isoformat() if v.voted_at else None
+            }
+            for v in voters
+        ],
+        "telemetry_events": [
+            {
+                "event_id": e.event_id,
+                "timestamp": e.timestamp.isoformat(),
+                "event_type": e.event_type,
+                "session_id": e.session_id,
+                "ip_address": e.ip_address,
+                "ground_truth_label": e.ground_truth_label,
+                "source": e.source
+            }
+            for e in events
+        ],
+        "window_scores": [
+            {
+                "window_id": w.window_id,
+                "window_start": w.window_start.isoformat(),
+                "window_end": w.window_end.isoformat(),
+                "event_count": w.event_count,
+                "vote_count": w.vote_count,
+                "failed_login_ratio": w.failed_login_ratio,
+                "inter_arrival_variance": w.inter_arrival_variance,
+                "iso_score": w.iso_score,
+                "lof_score": w.lof_score,
+                "flagged": w.flagged,
+                "risk_level": w.risk_level
+            }
+            for w in windows
+        ],
+        "alerts": [
+            {
+                "alert_id": a.alert_id,
+                "created_at": a.created_at.isoformat(),
+                "investigated": a.investigated,
+                "investigated_at": a.investigated_at.isoformat() if a.investigated_at else None,
+                "notes": a.notes
+            }
+            for a in alerts
+        ]
+    }
+
+    if download:
+        ts_str = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        content = json.dumps(log_data, indent=2)
+        return Response(
+            content=content,
+            media_type="application/json",
+            headers={"Content-Disposition": f"attachment; filename=atbu_election_audit_log_{ts_str}.json"}
+        )
+
+    return log_data
 
 
 # ==============================================================================
